@@ -114,13 +114,12 @@ ROBOTO       = "Roboto, sans-serif"
 ROBOTO_MED   = "Roboto Medium, sans-serif"
 
 SHARED_XAXIS = dict(
-    title="Year",
+    title=dict(text="Year", font=dict(color="black", size=20, family=ROBOTO_MED)),
     range=[1990, 2023],
     dtick=5,
     title_standoff=30,
     ticklabelposition="outside right",
     tickfont=dict(color="black", size=20, family=ROBOTO),
-    titlefont=dict(color="black", size=20, family=ROBOTO_MED),
 )
 
 SHARED_LEGEND = dict(
@@ -155,12 +154,11 @@ IMPORT_LABEL = dict(
 # Apply consistent x-axis formatting across all figures
 def apply_xaxis(fig):
     fig.update_xaxes(
-        title_text="Year",
+        title=dict(text="Year", font=dict(color="black", size=20, family=ROBOTO_MED)),
         range=[1990, 2023],
         dtick=5,
         title_standoff=30,
         tickfont=dict(color="black", size=20, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         showticklabels=True,
         ticks="outside",
         tickcolor="black",
@@ -182,11 +180,10 @@ fig1.update_layout(
         font=dict(size=21, color="black", family=ROBOTO),
     ),
     yaxis=dict(
-        title="Percent of Total (%)",
+        title=dict(text="Percent of Total (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
         range=[0.0, 100],
         title_standoff=25,
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
     ),
     legend=dict(
         orientation="h",
@@ -239,11 +236,10 @@ fig2.update_layout(
         font=dict(size=21, color="black", family=ROBOTO),
     ),
     yaxis=dict(
-        title="Median Wage ($)",
+        title=dict(text="Median Wage ($)", font=dict(color="black", size=20, family=ROBOTO_MED)),
         title_standoff=25,
         dtick=2500,
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         tickformat="$,.0f",
     ),
     legend=dict(
@@ -287,10 +283,9 @@ fig3.update_layout(
         font=dict(size=21, color="black", family=ROBOTO),
     ),
     yaxis=dict(
-        title="Number Non-College Educated Working",
+        title=dict(text="Number Non-College Educated Working", font=dict(color="black", size=20, family=ROBOTO_MED)),
         title_standoff=25,
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         tickformat=",",
     ),
     legend=dict(

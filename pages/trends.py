@@ -86,12 +86,11 @@ IMPORT_LABEL = dict(
 def apply_xaxis(fig):
     """Apply consistent x-axis formatting"""
     fig.update_xaxes(
-        title_text="Year",
+        title=dict(text="Year", font=dict(color="black", size=20, family=ROBOTO_MED)),
         range=[1990, 2023],
         dtick=5,
         title_standoff=30,
         tickfont=dict(color="black", size=20, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         showticklabels=True,
         ticks="outside",
         tickcolor="black",
@@ -214,19 +213,17 @@ fig_bubble.update_layout(
         font=dict(size=21, color="black", family=ROBOTO),
     ),
     xaxis=dict(
-        title="County Non-College Employment Rate (%)",
+        title=dict(text="County Non-College Employment Rate (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
         title_standoff=25,
         range=BUBBLE_X_RANGE,
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
     ),
     yaxis=dict(
-        title="County Non-College Median Wage ($)",
+        title=dict(text="County Non-College Median Wage ($)", font=dict(color="black", size=20, family=ROBOTO_MED)),
         title_standoff=25,
         range=BUBBLE_Y_RANGE,
         tickformat="$,.0f",
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
     ),
     hovermode="closest",
     height=650,
@@ -381,10 +378,9 @@ with tab1:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Employment Rate (%)",
+            title=dict(text="Employment Rate (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25,
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND,
         height=500,
@@ -408,10 +404,9 @@ with tab2:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Percent of Non-College Workers (%)",
+            title=dict(text="Percent of Non-College Workers (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25,
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND,
         height=500,
@@ -438,11 +433,10 @@ with tab3:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Median Wage ($)",
+            title=dict(text="Median Wage ($)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25,
             tickformat="$,.0f",
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND,
         height=500,
@@ -497,10 +491,9 @@ with tab4:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Ratio (College Wage / Non-College Wage)",
+            title=dict(text="Ratio (College Wage / Non-College Wage)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25,
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND,
         height=500,
@@ -584,10 +577,9 @@ fig_emp_pct.update_layout(
         font=dict(size=21, color="black", family=ROBOTO),
     ),
     yaxis=dict(
-        title="Non-College Employment Rate (%)",
+        title=dict(text="Non-College Employment Rate (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
         title_standoff=25,
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
     ),
     legend=SHARED_LEGEND,
     height=550,
@@ -651,11 +643,10 @@ fig_wage_pct.update_layout(
         font=dict(size=21, color="black", family=ROBOTO),
     ),
     yaxis=dict(
-        title="Non-College Median Wage ($)",
+        title=dict(text="Non-College Median Wage ($)", font=dict(color="black", size=20, family=ROBOTO_MED)),
         title_standoff=25,
         tickformat="$,.0f",
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
     ),
     legend=SHARED_LEGEND,
     height=550,
@@ -711,10 +702,9 @@ fig_cv.update_layout(
         font=dict(size=21, color="black", family=ROBOTO),
     ),
     yaxis=dict(
-        title="Coefficient of Variation (%)",
+        title=dict(text="Coefficient of Variation (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
         title_standoff=25,
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
     ),
     legend=SHARED_LEGEND,
     height=500,
@@ -794,10 +784,9 @@ with sq_tab1:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Non-College Employment Rate (%)",
+            title=dict(text="Non-College Employment Rate (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25, dtick=2,
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND, height=500,
     )
@@ -817,10 +806,9 @@ with sq_tab2:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Percent of Non-College Workers (%)",
+            title=dict(text="Percent of Non-College Workers (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25, range=[0, 100],
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND, height=500,
     )
@@ -840,10 +828,9 @@ with sq_tab3:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Non-College Median Wage ($)",
+            title=dict(text="Non-College Median Wage ($)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25, tickformat="$,.0f",
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND, height=500,
     )
@@ -863,10 +850,9 @@ with sq_tab4:
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Ratio (College / Non-College Wage)",
+            title=dict(text="Ratio (College / Non-College Wage)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25,
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND, height=500,
     )
@@ -906,9 +892,9 @@ for fig, title, ytitle, yfmt in [
      "Non-College Median Wage ($)", "$,.0f"),
 ]:
     yaxis_cfg = dict(
-        title=ytitle, title_standoff=25,
+        title=dict(text=ytitle, font=dict(color="black", size=20, family=ROBOTO_MED)),
+        title_standoff=25,
         tickfont=dict(color="black", size=18, family=ROBOTO),
-        titlefont=dict(color="black", size=20, family=ROBOTO_MED),
     )
     if yfmt:
         yaxis_cfg["tickformat"] = yfmt
@@ -958,10 +944,9 @@ for cv_col, cv_label, cv_color_base in [
             font=dict(size=21, color="black", family=ROBOTO),
         ),
         yaxis=dict(
-            title="Coefficient of Variation (%)",
+            title=dict(text="Coefficient of Variation (%)", font=dict(color="black", size=20, family=ROBOTO_MED)),
             title_standoff=25,
             tickfont=dict(color="black", size=18, family=ROBOTO),
-            titlefont=dict(color="black", size=20, family=ROBOTO_MED),
         ),
         legend=SHARED_LEGEND, height=500,
     )

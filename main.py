@@ -332,22 +332,20 @@ def employment_trends(county_df):
         },
 
         xaxis=dict(
-            title='Year',
+            title=dict(text='Year', font=dict(color='black', size=20, family="Roboto Medium, sans-serif")),
             range=[1990, 2023],
             dtick=5,
             title_standoff=30,
             ticklabelposition="outside right",
             tickfont=dict(color='black', size=20, family="Roboto, sans-serif"),
-            titlefont=dict(color='black', size=20, family="Roboto Medium, sans-serif"),
         ),
 
         yaxis=dict(
-            title='Non-College<br>Employment Rate (%)',
-            dtick = 2, 
+            title=dict(text='Non-College<br>Employment Rate (%)', font=dict(color='black', size=20, family="Roboto Medium, sans-serif")),
+            dtick = 2,
             range=[min(min(county_emp),min(peer_emp))-2,max(max(county_emp),max(peer_emp))+2],
             title_standoff=25,
             tickfont=dict(color='black', size=18, family="Roboto, sans-serif"),
-            titlefont=dict(color='black', size=20, family="Roboto Medium, sans-serif")
         ),
 
         margin=dict(t=105, r=0, l=155, b=100),
@@ -430,18 +428,16 @@ def county_dual_axis_chart(df):
 
 
         xaxis=dict(
-            title="Year",
+            title=dict(text="Year", font=dict(color='black', size=20, family="Roboto Medium, sans-serif")),
             range=[1990,2022],
             dtick=5,
             tickfont=dict(color='black', size=20, family="Roboto, sans-serif"),
-            titlefont=dict(color='black', size=20, family="Roboto Medium, sans-serif"),
         ),
 
         yaxis=dict(
-            title="Percent of Total (%)",
+            title=dict(text="Percent of Total (%)", font=dict(color='black', size=18, family="Roboto Medium, sans-serif")),
             range=[0,100],
             tickfont=dict(color='black', size=18, family="Roboto, sans-serif"),
-            titlefont=dict(color='black', size=20, family="Roboto Medium, sans-serif"),
         ),
 
         paper_bgcolor='#F4F4F4',
