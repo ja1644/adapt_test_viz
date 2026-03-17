@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import json
+from urllib.request import urlopen
 
 st.set_page_config(page_title="Trends Analysis", page_icon="📈", layout="wide")
 
@@ -32,6 +34,10 @@ def load_data():
 
 national_df, long_df = load_data()
 
+# Remove CT planning regions
+_ct_mask = national_df["county_name"].str.contains("Planning Region", case=False, na=False)
+national_df = national_df[~_ct_mask].copy()
+
 # Assign China shock quartiles (fixed per county, normalized by county size)
 _county_shock = long_df.groupby("countyid").agg(
     _pred_emp_loss=("pred_emp_loss", "mean"),
@@ -48,6 +54,143 @@ long_df = long_df.merge(_county_shock[["countyid", "china_shock_q"]], on="county
 # Page header
 st.title("County & National Trends Analysis")
 st.caption("Explore county economic trajectories and national patterns · 1990–2023")
+
+# ── National County Map ───────────────────────────────────────────────────────
+@st.cache_data
+def load_counties_geojson():
+    with urlopen("https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json") as response:
+        return json.load(response)
+
+_NAT_MAP_METRICS = {
+    "Non-College Median Wage (2022)":            ("star_median2022",           1,   "$,.0f"),
+    "College Median Wage (2022)":                ("college_wage2022",           1,   "$,.0f"),
+    "Non-College Employment Rate (2022)":        ("STAR_emp_rate2022",          1,   ",.1f"),
+    "College Employment Rate (2022)":            ("emp_rate_college2022",       1,   ",.1f"),
+    "Est. Job Loss from Low-Wage Imports":       ("pred_emp_loss",              1,   ",.0f"),
+    "Est. Job Gain from Exports & Inputs":       ("pred_emp_gain",              1,   ",.0f"),
+    "Education Spending (% Local Budget, 2022)": ("educ_pct_total_stloc2022", 100,   ",.1f"),
+    "Per-Pupil Spending (2022)":                 ("spend_ppupil_2022",          1,   "$,.0f"),
+    "Tradable Services Job Growth (2017–2022)":  ("tradserv_exp_emp_2017_2022", 1,   ",.0f"),
+}
+
+_nat_label = st.selectbox("Select metric to map", list(_NAT_MAP_METRICS.keys()), key="nat_map_metric")
+_nat_col, _nat_scale, _nat_fmt = _NAT_MAP_METRICS[_nat_label]
+
+_nat_df = national_df[~national_df["state"].isin(["AK", "HI"])][
+    ["countyid", "county_name", "state", _nat_col]
+].dropna(subset=[_nat_col]).copy()
+_nat_df["fips"] = _nat_df["countyid"].astype(int).apply(lambda x: f"{x:05d}")
+_nat_df["_val"] = _nat_df[_nat_col] * _nat_scale
+
+_nat_geo = load_counties_geojson()
+
+fig_nat = go.Figure(go.Choropleth(
+    geojson=_nat_geo,
+    locations=_nat_df["fips"],
+    z=_nat_df["_val"],
+    colorscale="Blues",
+    colorbar=dict(
+        title=dict(text=_nat_label, font=dict(family="Roboto, sans-serif", size=12, color="black")),
+        tickfont=dict(family="Roboto, sans-serif", size=11, color="black"),
+        tickformat=_nat_fmt,
+    ),
+    text=_nat_df["county_name"] + ", " + _nat_df["state"],
+    hovertemplate="<b>%{text}</b><br>" + _nat_label + ": %{z:" + _nat_fmt + "}<extra></extra>",
+    marker_line_color="white",
+    marker_line_width=0.3,
+))
+fig_nat.update_geos(scope="usa", visible=False)
+fig_nat.update_layout(
+    title=dict(
+        text=_nat_label + " — All U.S. Counties",
+        x=0.5, xanchor="center",
+        font=dict(size=18, color="black", family="Roboto, sans-serif"),
+    ),
+    paper_bgcolor="#F4F4F4",
+    margin=dict(t=60, b=10, l=10, r=10),
+    height=540,
+)
+st.plotly_chart(fig_nat, width="stretch")
+
+# ── Commuting Zone Map ────────────────────────────────────────────────────────
+@st.cache_data
+def load_czone_mapping():
+    df = pd.read_csv("czone_county.csv", dtype={"county_fips": str})
+    df["county_fips"] = df["county_fips"].str.zfill(5)
+    return df
+
+# Aggregation rule per metric: sum for employment levels, mean for rates/wages
+_CZ_MAP_METRICS = {
+    "Non-College Median Wage (2022)":            ("star_median2022",            1,   "$,.0f", "mean"),
+    "College Median Wage (2022)":                ("college_wage2022",            1,   "$,.0f", "mean"),
+    "Non-College Employment Rate (2022)":        ("STAR_emp_rate2022",           1,   ",.1f",  "mean"),
+    "College Employment Rate (2022)":            ("emp_rate_college2022",        1,   ",.1f",  "mean"),
+    "Est. Job Loss from Low-Wage Imports":       ("pred_emp_loss",               1,   ",.0f",  "sum"),
+    "Est. Job Gain from Exports & Inputs":       ("pred_emp_gain",               1,   ",.0f",  "sum"),
+    "Education Spending (% Local Budget, 2022)": ("educ_pct_total_stloc2022",  100,   ",.1f",  "mean"),
+    "Per-Pupil Spending (2022)":                 ("spend_ppupil_2022",           1,   "$,.0f", "mean"),
+    "Tradable Services Job Growth (2017–2022)":  ("tradserv_exp_emp_2017_2022",  1,   ",.0f",  "sum"),
+}
+
+st.subheader("Commuting Zone Map")
+_cz_label = st.selectbox("Select metric to map", list(_CZ_MAP_METRICS.keys()), key="cz_map_metric")
+_cz_col, _cz_scale, _cz_fmt, _cz_agg = _CZ_MAP_METRICS[_cz_label]
+
+_czone_xwalk = load_czone_mapping()
+
+# Build county-level frame with FIPS, filtered to contiguous 48
+_cz_base = national_df[~national_df["state"].isin(["AK", "HI"])][
+    ["countyid", _cz_col]
+].dropna(subset=[_cz_col]).copy()
+_cz_base["fips"] = _cz_base["countyid"].astype(int).apply(lambda x: f"{x:05d}")
+
+# Attach czone id and label to each county
+_cz_base = _cz_base.merge(
+    _czone_xwalk[["county_fips", "czone", "NameoflargestplaceinCommuti"]],
+    left_on="fips", right_on="county_fips", how="left",
+)
+
+# Aggregate to CZ level
+_cz_agg_df = (
+    _cz_base.groupby("czone")
+    .agg(_val=(_cz_col, _cz_agg), cz_name=("NameoflargestplaceinCommuti", "first"))
+    .reset_index()
+)
+_cz_agg_df["_val"] = _cz_agg_df["_val"] * _cz_scale
+
+# Join CZ value back to every county in that CZ
+_cz_plot = _cz_base[["fips", "czone"]].merge(
+    _cz_agg_df[["czone", "_val", "cz_name"]], on="czone", how="left"
+)
+
+fig_cz = go.Figure(go.Choropleth(
+    geojson=_nat_geo,
+    locations=_cz_plot["fips"],
+    z=_cz_plot["_val"],
+    colorscale="Oranges",
+    colorbar=dict(
+        title=dict(text=_cz_label, font=dict(family="Roboto, sans-serif", size=12, color="black")),
+        tickfont=dict(family="Roboto, sans-serif", size=11, color="black"),
+        tickformat=_cz_fmt,
+    ),
+    text=_cz_plot["cz_name"],
+    hovertemplate="<b>%{text}</b><br>" + _cz_label + ": %{z:" + _cz_fmt + "}<extra></extra>",
+    marker_line_color="white",
+    marker_line_width=0.3,
+))
+fig_cz.update_geos(scope="usa", visible=False)
+fig_cz.update_layout(
+    title=dict(
+        text=_cz_label + " — Commuting Zones",
+        x=0.5, xanchor="center",
+        font=dict(size=18, color="black", family="Roboto, sans-serif"),
+    ),
+    paper_bgcolor="#F4F4F4",
+    margin=dict(t=60, b=10, l=10, r=10),
+    height=540,
+)
+st.plotly_chart(fig_cz, width="stretch")
+st.caption("Counties shaded by their commuting zone's aggregated value. Wages and rates are averaged across counties; employment counts are summed.")
 
 # Styling constants
 ROBOTO = "Roboto, sans-serif"

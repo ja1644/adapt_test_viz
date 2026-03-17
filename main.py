@@ -37,6 +37,13 @@ def load_data():
     return pd.read_stata(path1), pd.read_csv(path2), pd.read_csv(path3), pd.read_csv(path4)
 
 national_df, long_df, cbp_df, tradserv_df = load_data()
+
+# Remove CT planning regions (Census added these in 2022; not traditional counties)
+_ct_planning = national_df["county_name"].str.contains("Planning Region", case=False, na=False)
+national_df = national_df[~_ct_planning].copy()
+_ct_planning_long = long_df["county_name"].str.contains("Planning Region", case=False, na=False)
+long_df = long_df[~_ct_planning_long].copy()
+
 default_state = "NC"
 default_county = "Durham County, NC"
 
@@ -309,6 +316,63 @@ fig_pie.update_layout(
     margin=dict(t=60, b=20, l=20, r=220),
 )
 st.plotly_chart(fig_pie, width="stretch")
+
+### STATE COUNTY MAP
+
+@st.cache_data
+def load_counties_geojson():
+    with urlopen("https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json") as response:
+        return json.load(response)
+
+_MAP_METRICS = {
+    "Non-College Median Wage (2022)":            ("star_median2022",           1,    "$,.0f"),
+    "College Median Wage (2022)":                ("college_wage2022",           1,    "$,.0f"),
+    "Non-College Employment Rate (2022)":        ("STAR_emp_rate2022",          1,    ",.1f"),
+    "College Employment Rate (2022)":            ("emp_rate_college2022",       1,    ",.1f"),
+    "Est. Job Loss from Low-Wage Imports":       ("pred_emp_loss",              1,    ",.0f"),
+    "Est. Job Gain from Exports & Inputs":       ("pred_emp_gain",              1,    ",.0f"),
+    "Education Spending (% Local Budget, 2022)": ("educ_pct_total_stloc2022",  100,   ",.1f"),
+    "Per-Pupil Spending (2022)":                 ("spend_ppupil_2022",          1,    "$,.0f"),
+    "Tradable Services Job Growth (2017–2022)":  ("tradserv_exp_emp_2017_2022", 1,    ",.0f"),
+}
+
+st.subheader(f"{state} — County Map")
+_map_label = st.selectbox("Select metric to map", list(_MAP_METRICS.keys()), key="map_metric")
+_map_col, _map_scale, _map_fmt = _MAP_METRICS[_map_label]
+
+_counties_geo = load_counties_geojson()
+
+_map_df = national_df[["countyid", "county_name", _map_col]].dropna(subset=[_map_col]).copy()
+_map_df["fips"] = _map_df["countyid"].astype(int).apply(lambda x: f"{x:05d}")
+_map_df["_val"] = _map_df[_map_col] * _map_scale
+
+fig_map = go.Figure(go.Choropleth(
+    geojson=_counties_geo,
+    locations=_map_df["fips"],
+    z=_map_df["_val"],
+    colorscale="Blues",
+    colorbar=dict(
+        title=dict(text=_map_label, font=dict(family="Roboto, sans-serif", size=12, color="black")),
+        tickfont=dict(family="Roboto, sans-serif", size=11, color="black"),
+        tickformat=_map_fmt,
+    ),
+    text=_map_df["county_name"],
+    hovertemplate="<b>%{text}</b><br>" + _map_label + ": %{z:" + _map_fmt + "}<extra></extra>",
+    marker_line_color="white",
+    marker_line_width=0.5,
+))
+fig_map.update_geos(fitbounds="locations", visible=False)
+fig_map.update_layout(
+    title=dict(
+        text=f"{_map_label} — {state} Counties",
+        x=0.5, xanchor="center",
+        font=dict(size=18, color="black", family="Roboto, sans-serif"),
+    ),
+    paper_bgcolor="#F4F4F4",
+    margin=dict(t=60, b=10, l=10, r=10),
+    height=520,
+)
+st.plotly_chart(fig_map, width="stretch")
 
 ### GRAPHS
 def employment_trends(county_df):
