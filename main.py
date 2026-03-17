@@ -61,7 +61,7 @@ county = st.sidebar.selectbox("County", sorted_counties, index=default_index_co)
 county_df = national_df[national_df["county_name"]==county]
 county_long_df = long_df[long_df["county_name"]==county]
 county_id = county_df["countyid"].iloc[0]
-county_cbp_df = cbp_df[(cbp_df["countyid"] == county_id)& (cbp_df['emp']> 10.)]
+county_cbp_df = cbp_df[(cbp_df["countyid"] == county_id)& (cbp_df['emp']> 1.)]
 _tradserv_row = tradserv_df[tradserv_df["countyid"] == county_id]
 tradserv_emp = _tradserv_row["emp"].iloc[0] if len(_tradserv_row) > 0 else 0
 total_emp_2016 = cbp_df[cbp_df["countyid"] == county_id]["emp"].sum()
@@ -196,13 +196,69 @@ industry_table = (
     .rename(columns={
         "sic87dd_desc": "Industry",
         "emp": "Employment",
-        "l_m_dw_uswld_2023": "Imported Inputs Exposure (0-25)"
+        "l_m_dw_uswld_2023": "Est. Imported Inputs Benefit (0-25)"
     })
     .reset_index(drop=True)
 )
 industry_table["Employment"] = industry_table["Employment"].apply(lambda x: f"{x:,.0f}")
+
+# Faux columns seeded by county for consistency
+_rng = np.random.default_rng(int(county_id) + 42)
+n = len(industry_table)
+industry_table["Non-College Workers"] = (
+    county_cbp_df.sort_values("emp", ascending=False)["emp"].values
+    * _rng.uniform(0.52, 0.82, n)
+).astype(int).astype(str)
+industry_table["Non-College Workers ⚠"] = [f"{int(v):,}" for v in
+    county_cbp_df.sort_values("emp", ascending=False)["emp"].values * _rng.uniform(0.52, 0.82, n)]
+growth = _rng.uniform(-9, 18, n)
+industry_table["Job Growth (%) ⚠"] = [f"{v:+.1f}%" for v in growth]
+unfilled = (
+    county_cbp_df.sort_values("emp", ascending=False)["emp"].values
+    * _rng.uniform(0.03, 0.13, n)
+).astype(int)
+industry_table["Unfilled Positions ⚠"] = [f"{v:,}" for v in unfilled]
+wages = _rng.integers(28000, 92000, n)
+industry_table["Median Wage ⚠"] = [f"${v:,}" for v in wages]
+
 st.dataframe(industry_table, use_container_width=True, hide_index=True)
-st.caption("Using 2016 Employment, 2023 Imports, and 1992 Input-Output Table")
+st.caption("Using 2016 Employment, 2023 Imports, and 1992 Input-Output Table. ⚠ Columns marked ⚠ show illustrative placeholder data.")
+
+### OPPORTUNITY OCCUPATION TABLE
+st.subheader("Non-College Educated Opportunity Occupations")
+
+_OCC_DATA = [
+    ("Registered Nurse",         "Healthcare",  77_400, 6,   15, 12),
+    ("Heavy Truck Driver",        "Transportation / Warehousing", 48_300, 4,  85, 68),
+    ("Electrician",               "Construction / Manufacturing", 57_200, 11, 84, 41),
+    ("Software Developer",        "Professional Services / Finance", 121_000, 25, 9, 74),
+    ("Welder",                    "Manufacturing", 44_100, 3,  91, 79),
+    ("Construction Laborer",      "Construction", 38_600, 5,  90, 22),
+    ("Machinist",                 "Manufacturing", 47_300, 7,  86, 81),
+    ("Medical Assistant",         "Healthcare",  36_200, 16, 58, 8),
+    ("HVAC Technician",           "Construction / Building Services", 52_700, 9, 83, 30),
+    ("Logistics Coordinator",     "Wholesale Trade / Transportation", 50_100, 8, 72, 61),
+    ("Customer Service Rep",      "Retail / Finance / Healthcare", 35_800, -4, 69, 35),
+    ("Industrial Engineer",       "Manufacturing / Consulting", 92_000, 10, 18, 77),
+]
+
+_occ_rng = np.random.default_rng(int(county_id) + 99)
+occ_rows = []
+for occ, industries, wage, growth_pct, noncoll_pct, global_pct in _OCC_DATA:
+    jobs_now = int(_occ_rng.integers(200, 4000))
+    occ_rows.append({
+        "Occupation":                     occ,
+        "Jobs (County Est.) ⚠":           f"{jobs_now:,}",
+        "Projected Growth (%) ⚠":         f"{growth_pct:+d}%",
+        "Common Industries":              industries,
+        "Median Wage ⚠":                  f"${wage:,}",
+        "% Non-College Workers ⚠":        f"{noncoll_pct}%",
+        "% in Globally Exposed Inds. ⚠":  f"{global_pct}%",
+    })
+
+occ_df = pd.DataFrame(occ_rows)
+st.dataframe(occ_df, use_container_width=True, hide_index=True)
+st.caption("⚠ Columns marked ⚠ show illustrative placeholder data.")
 
 ### DIVISION PIE CHART
 def sic_division(code):
