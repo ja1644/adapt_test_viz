@@ -327,9 +327,9 @@ def employment_trends(county_df):
             'x': 0.5,
             'y': 0.94,
             'xanchor': 'center',
-            'yanchor': 'top'
+            'yanchor': 'top',
+            'font': dict(size=21, color="black", family="Roboto, sans-serif"),
         },
-        title_font=dict(size=21, color="black", family="Roboto, sans-serif"),
 
         xaxis=dict(
             title='Year',
@@ -425,8 +425,8 @@ def county_dual_axis_chart(df):
         title={'text': f"Change in Manufacturing Jobs, and Good-Paying Jobs, <br> for Non-College Workers in {name}",
                'x':0.5,
                'y':0.94,
-               'xanchor':'center'},
-        title_font=dict(size=21, color="black", family="Roboto, sans-serif"),
+               'xanchor':'center',
+               'font': dict(size=21, color="black", family="Roboto, sans-serif")},
 
 
         xaxis=dict(
