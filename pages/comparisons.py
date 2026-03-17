@@ -219,7 +219,7 @@ for df, label, color in zip(county_long_dfs, labels, COLORS):
             name=f"{label}  Mid/Upper Jobs",
         ))
 
-st.plotly_chart(fig1, use_container_width=True)
+st.plotly_chart(fig1, width="stretch")
 st.caption("Solid lines = Manufacturing Share  Dotted lines = Non-College Mid/Upper Income Jobs")
 
 # 
@@ -267,7 +267,7 @@ for df, label, color in zip(county_long_dfs, labels, COLORS):
             name=label,
         ))
 
-st.plotly_chart(fig2, use_container_width=True)
+st.plotly_chart(fig2, width="stretch")
 
 # 
 # Chart 3  Non-College Employment
@@ -313,10 +313,10 @@ for df, label, color in zip(county_long_dfs, labels, COLORS):
             name=label,
         ))
 
-st.plotly_chart(fig3, use_container_width=True)
+st.plotly_chart(fig3, width="stretch")
 
 # Expandable section displaying raw data for selected counties
 with st.expander(" Show raw data for selected counties"):
     for df, label in zip(county_long_dfs, labels):
         st.markdown(f"**{label}**")
-        st.dataframe(df.reset_index(drop=True), use_container_width=True)
+        st.dataframe(df.reset_index(drop=True), width="stretch")

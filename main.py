@@ -221,7 +221,7 @@ industry_table["Unfilled Positions ⚠"] = [f"{v:,}" for v in unfilled]
 wages = _rng.integers(28000, 92000, n)
 industry_table["Median Wage ⚠"] = [f"${v:,}" for v in wages]
 
-st.dataframe(industry_table, use_container_width=True, hide_index=True)
+st.dataframe(industry_table, width="stretch", hide_index=True)
 st.caption("Using 2016 Employment, 2023 Imports, and 1992 Input-Output Table. ⚠ Columns marked ⚠ show illustrative placeholder data.")
 
 ### OPPORTUNITY OCCUPATION TABLE
@@ -257,7 +257,7 @@ for occ, industries, wage, growth_pct, noncoll_pct, global_pct in _OCC_DATA:
     })
 
 occ_df = pd.DataFrame(occ_rows)
-st.dataframe(occ_df, use_container_width=True, hide_index=True)
+st.dataframe(occ_df, width="stretch", hide_index=True)
 st.caption("⚠ Columns marked ⚠ show illustrative placeholder data.")
 
 ### DIVISION PIE CHART
@@ -308,7 +308,7 @@ fig_pie.update_layout(
     paper_bgcolor="#F4F4F4",
     margin=dict(t=60, b=20, l=20, r=220),
 )
-st.plotly_chart(fig_pie, use_container_width=True)
+st.plotly_chart(fig_pie, width="stretch")
 
 ### GRAPHS
 def employment_trends(county_df):
